@@ -36,21 +36,20 @@ services:
   #     - servicenet
 
   postgres:
-    image: postgres:latest
+    image: postgres:alpine
     container_name: db_postgres
     environment:
       - POSTGRES_USER=${DB_USER}  
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
-      - DATABASE_HOST=${DB_HOST} 
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - servicenet
     extra_hosts:
-      - postgres.docker.internal:172.17.0.1
+      - postgres.docker.internal:127.0.0.1
     
   pgadmin:
     image: dpage/pgadmin4
@@ -75,5 +74,4 @@ volumes:
 
 networks:
   servicenet:
-    driver: bridge
   # nginxnet:

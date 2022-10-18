@@ -1,0 +1,3 @@
+for extra_hosts
+Add extra_hosts to /etc/hosts file in the created container:
+[ip] your_extra_hosts
