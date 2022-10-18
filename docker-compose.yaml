@@ -1,0 +1,79 @@
+version: '3'
+services:
+
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: nginx
+  #   restart: always
+  #   ports:
+  #     - 80:80
+  #   volumes:
+  #     - pgadmin_data:/var/www/pgadmin
+  #     - api_data:/var/www/api
+  #     - ./docker/nginx/logs/:/var/log/nginx
+  #     - ./docker/nginx/config/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./docker/nginx/config/conf.d/pgadmin.conf:/etc/nginx/conf.d/pgadmin.conf:ro
+  #     - ./docker/nginx/config/conf.d/sitename.conf:/etc/nginx/conf.d/sitename.conf:ro
+  #   networks:
+  #     nginxnet:
+  #       aliases: 
+  #         - sitename.loc
+  #   depends_on:
+  #     - api
+  #     - pgadmin
+
+  # api:
+  #   container_name: api
+  #   build: ./docker/go
+  #   ports: 
+  #     - 8080:8080 
+  #   restart: on-failure
+  #   volumes:
+  #     - api_data:/usr/src/app/
+  #   depends_on:
+  #     - postgres          
+  #   networks:
+  #     - servicenet
+
+  postgres:
+    image: postgres:latest
+    container_name: db_postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}  
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST} 
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - servicenet
+    extra_hosts:
+      - postgres.docker.internal:172.17.0.1
+    
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - postgres
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - servicenet
+    restart: unless-stopped
+
+volumes:
+  api_data:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  servicenet:
+    driver: bridge
+  # nginxnet:
